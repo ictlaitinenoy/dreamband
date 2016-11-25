@@ -2,7 +2,7 @@
 
 ## Background
 
-The sole reason for the existence of this application is to demonstrate the technical skills of a freelancer consultant to potential customers. The whole concept is kind of stupid - just something that allows for the creation of a very simple Javascript SPA (single page application) and a Java Backend. 
+The sole reason for the existence of this application is to demonstrate the technical skills of a freelancer consultant to potential customers. The whole concept of the functionality is kind of stupid and meaningless - it's just something that exist for the sake of allowing for the creation of a very simple Javascript SPA (single page application) and a Java Backend. 
 
 ### What does it do then
 
