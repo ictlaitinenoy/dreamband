@@ -1,0 +1,25 @@
+var React = require('react');
+var client = require('./client');
+
+var App = React.createClass({
+	getInitialState: function () {
+		return ({bands: []});
+	},
+	componentDidMount: function () {
+		client({method: 'GET', path: '/api/bands'}).done(response => {
+            this.setState({bands: response.entity._embedded.bands});
+        });
+	}
+	render: function () {
+		return (
+            <BandList bands={this.state.bands}/>
+		);
+	}
+});
+
+var BandList = React.createClass({
+	render: function () {
+		var bands = this.props.bands.map(band =>
+        <Band key={band._links.self.href} band={band}/>);
+	};
+});
