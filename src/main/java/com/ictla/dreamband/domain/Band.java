@@ -16,6 +16,7 @@ public class Band {
     }
 
     public Band(String name) {
+	this.name = name;
     }
 
     private @Id @GeneratedValue Long id;
