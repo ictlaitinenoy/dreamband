@@ -1,5 +1,6 @@
 # Dreamband - what this app is about
 
+# ! ! ! DO NOTE THAT THIS IS WORK-IN-PROGRESS AND OFTEN IN A STATE OF NOT DOING ANYTHING CLEVER  ! ! !
 ## Background
 
 The sole reason for the existence of this application is to demonstrate the technical skills of a freelancer consultant to potential customers. The whole concept of the functionality is kind of stupid and meaningless - it's just something that exist for the sake of allowing for the creation of a very simple Javascript SPA (single page application) and a Java Backend. 
