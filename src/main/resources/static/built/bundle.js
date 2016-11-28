@@ -66,7 +66,10 @@
 	
 			var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 	
-			_this.state = { bands: [] };
+			_this.state = {
+				bands: [],
+				players: []
+			};
 			return _this;
 		}
 	
@@ -78,11 +81,19 @@
 				client({ method: 'GET', path: 'api/bands' }).done(function (response) {
 					_this2.setState({ bands: response.entity._embedded.bands });
 				});
+				client({ method: 'GET', path: 'api/players' }).done(function (response) {
+					_this2.setState({ players: response.entity._embedded.players });
+				});
 			}
 		}, {
 			key: 'render',
 			value: function render() {
-				return React.createElement(BandList, { bands: this.state.bands });
+				return React.createElement(
+					'div',
+					null,
+					React.createElement(BandList, { bands: this.state.bands }),
+					React.createElement(PlayerList, { players: this.state.players })
+				);
 			}
 		}]);
 	
@@ -128,8 +139,47 @@
 		return BandList;
 	}(React.Component);
 	
-	var Band = function (_React$Component3) {
-		_inherits(Band, _React$Component3);
+	var PlayerList = function (_React$Component3) {
+		_inherits(PlayerList, _React$Component3);
+	
+		function PlayerList() {
+			_classCallCheck(this, PlayerList);
+	
+			return _possibleConstructorReturn(this, (PlayerList.__proto__ || Object.getPrototypeOf(PlayerList)).apply(this, arguments));
+		}
+	
+		_createClass(PlayerList, [{
+			key: 'render',
+			value: function render() {
+				var players = this.props.players.map(function (player) {
+					return React.createElement(Player, { key: player._links.self.href, player: player });
+				});
+				return React.createElement(
+					'table',
+					null,
+					React.createElement(
+						'tbody',
+						null,
+						React.createElement(
+							'tr',
+							null,
+							React.createElement(
+								'th',
+								null,
+								'Name'
+							)
+						),
+						players
+					)
+				);
+			}
+		}]);
+	
+		return PlayerList;
+	}(React.Component);
+	
+	var Band = function (_React$Component4) {
+		_inherits(Band, _React$Component4);
 	
 		function Band() {
 			_classCallCheck(this, Band);
@@ -153,6 +203,33 @@
 		}]);
 	
 		return Band;
+	}(React.Component);
+	
+	var Player = function (_React$Component5) {
+		_inherits(Player, _React$Component5);
+	
+		function Player() {
+			_classCallCheck(this, Player);
+	
+			return _possibleConstructorReturn(this, (Player.__proto__ || Object.getPrototypeOf(Player)).apply(this, arguments));
+		}
+	
+		_createClass(Player, [{
+			key: 'render',
+			value: function render() {
+				return React.createElement(
+					'tr',
+					null,
+					React.createElement(
+						'td',
+						null,
+						this.props.player.name
+					)
+				);
+			}
+		}]);
+	
+		return Player;
 	}(React.Component);
 	
 	ReactDOM.render(React.createElement(App, null), document.getElementById('react'));
