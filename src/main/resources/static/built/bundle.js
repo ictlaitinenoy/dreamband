@@ -75,7 +75,7 @@
 			value: function componentDidMount() {
 				var _this2 = this;
 	
-				client({ method: 'GET', path: '/api/bands' }).done(function (response) {
+				client({ method: 'GET', path: 'api/bands' }).done(function (response) {
 					_this2.setState({ bands: response.entity._embedded.bands });
 				});
 			}

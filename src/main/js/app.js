@@ -10,7 +10,7 @@ class App extends React.Component {
 	}
 
 	componentDidMount() {
-		client({method: 'GET', path: '/api/bands'}).done(response => {
+		client({method: 'GET', path: 'api/bands'}).done(response => {
 			this.setState({bands: response.entity._embedded.bands});
 		});
 	}
