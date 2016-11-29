@@ -1,7 +1,11 @@
 var path = require('path');
 
+const PATHS = {
+	app: path.join(__dirname, 'app'),
+};
+
 module.exports = {
-    entry: './src/main/js/app.js',
+    entry: PATHS.app, //'./src/main/js/app.js',
     devtool: 'sourcemaps',
     cache: true,
     debug: true,
