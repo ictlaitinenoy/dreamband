@@ -31,62 +31,6 @@ class App extends React.Component {
 	}
 }
 
-class BandList extends React.Component{
-	render() {
-		var bands = this.props.bands.map(band =>
-			<Band key={band._links.self.href} band={band}/>
-		);
-		return (
-			<table>
-				<tbody>
-					<tr>
-						<th>Name</th>
-					</tr>
-					{bands}
-				</tbody>
-			</table>
-		)
-	}
-}
-
-class PlayerList extends React.Component{
-	render() {
-		var players = this.props.players.map(player =>
-			<Player key={player._links.self.href} player={player}/>
-		);
-		return (
-			<table>
-				<tbody>
-					<tr>
-						<th>Name</th>
-					</tr>
-					{players}
-				</tbody>
-			</table>
-		)
-	}
-}
-
-class Band extends React.Component{
-	render() {
-		return (
-			<tr>
-				<td>{this.props.band.name}</td>
-			</tr>
-		)
-	}
-}
-
-class Player extends React.Component{
-	render() {
-		return (
-			<tr>
-				<td>{this.props.player.name}</td>
-			</tr>
-		)
-	}
-}
-
 ReactDOM.render(
 		<App />,
 		document.getElementById('react'))
