@@ -1,3 +1,4 @@
+const React = require('react');
 
 class Player extends React.Component{
 	render() {
@@ -9,3 +10,4 @@ class Player extends React.Component{
 	}
 }
 
+module.exports = Player;

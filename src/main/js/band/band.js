@@ -1,3 +1,5 @@
+const React = require('react');
+
 class Band extends React.Component{
 	render() {
 		return (
@@ -7,3 +9,5 @@ class Band extends React.Component{
 		)
 	}
 }
+
+module.exports = Band;

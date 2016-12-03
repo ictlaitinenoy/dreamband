@@ -46,6 +46,10 @@
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -57,6 +61,11 @@
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(32);
 	var client = __webpack_require__(178);
+	var BandList = __webpack_require__(226);
+	var PlayerList = __webpack_require__(228);
+	
+	var follow = __webpack_require__(230); // function to hop multiple links by "rel"
+	var root = 'api';
 	
 	var App = function (_React$Component) {
 		_inherits(App, _React$Component);
@@ -68,22 +77,64 @@
 	
 			_this.state = {
 				bands: [],
-				players: []
+				players: [],
+				bandPageSize: 1,
+				playerPageSize: 5
 			};
 			return _this;
 		}
 	
 		_createClass(App, [{
-			key: 'componentDidMount',
-			value: function componentDidMount() {
+			key: 'loadBandsFromServer',
+			value: function loadBandsFromServer(pageSize) {
 				var _this2 = this;
 	
-				client({ method: 'GET', path: 'api/bands' }).done(function (response) {
-					_this2.setState({ bands: response.entity._embedded.bands });
+				follow(client, root, [{ rel: 'bands', params: { size: pageSize } }]).then(function (bandCollection) {
+					return client({
+						method: 'GET',
+						path: bandCollection.entity._links.profile.href,
+						headers: { 'Accept': 'application/schema+json' }
+					}).then(function (schema) {
+						_this2.schema = schema.entity;
+						return bandCollection;
+					});
+				}).done(function (bandCollection) {
+					_this2.setState({
+						bands: bandCollection.entity._embedded.bands,
+						attributes: Object.keys(_this2.schema.properties),
+						pageSize: pageSize,
+						links: bandCollection.entity._links
+					});
 				});
-				client({ method: 'GET', path: 'api/players' }).done(function (response) {
-					_this2.setState({ players: response.entity._embedded.players });
+			}
+		}, {
+			key: 'loadPlayersFromServer',
+			value: function loadPlayersFromServer(pageSize) {
+				var _this3 = this;
+	
+				follow(client, root, [{ rel: 'players', params: { size: pageSize } }]).then(function (playerCollection) {
+					return client({
+						method: 'GET',
+						path: playerCollection.entity._links.profile.href,
+						headers: { 'Accept': 'application/schema+json' }
+					}).then(function (schema) {
+						_this3.schema = schema.entity;
+						return playerCollection;
+					});
+				}).done(function (playerCollection) {
+					_this3.setState({
+						players: playerCollection.entity._embedded.players,
+						attributes: Object.keys(_this3.schema.properties),
+						pageSize: pageSize,
+						links: playerCollection.entity._links
+					});
 				});
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				this.loadBandsFromServer(this.state.bandPageSize);
+				this.loadPlayersFromServer(this.state.playerPageSize);
 			}
 		}, {
 			key: 'render',
@@ -100,137 +151,8 @@
 		return App;
 	}(React.Component);
 	
-	var BandList = function (_React$Component2) {
-		_inherits(BandList, _React$Component2);
+	exports.default = App;
 	
-		function BandList() {
-			_classCallCheck(this, BandList);
-	
-			return _possibleConstructorReturn(this, (BandList.__proto__ || Object.getPrototypeOf(BandList)).apply(this, arguments));
-		}
-	
-		_createClass(BandList, [{
-			key: 'render',
-			value: function render() {
-				var bands = this.props.bands.map(function (band) {
-					return React.createElement(Band, { key: band._links.self.href, band: band });
-				});
-				return React.createElement(
-					'table',
-					null,
-					React.createElement(
-						'tbody',
-						null,
-						React.createElement(
-							'tr',
-							null,
-							React.createElement(
-								'th',
-								null,
-								'Name'
-							)
-						),
-						bands
-					)
-				);
-			}
-		}]);
-	
-		return BandList;
-	}(React.Component);
-	
-	var PlayerList = function (_React$Component3) {
-		_inherits(PlayerList, _React$Component3);
-	
-		function PlayerList() {
-			_classCallCheck(this, PlayerList);
-	
-			return _possibleConstructorReturn(this, (PlayerList.__proto__ || Object.getPrototypeOf(PlayerList)).apply(this, arguments));
-		}
-	
-		_createClass(PlayerList, [{
-			key: 'render',
-			value: function render() {
-				var players = this.props.players.map(function (player) {
-					return React.createElement(Player, { key: player._links.self.href, player: player });
-				});
-				return React.createElement(
-					'table',
-					null,
-					React.createElement(
-						'tbody',
-						null,
-						React.createElement(
-							'tr',
-							null,
-							React.createElement(
-								'th',
-								null,
-								'Name'
-							)
-						),
-						players
-					)
-				);
-			}
-		}]);
-	
-		return PlayerList;
-	}(React.Component);
-	
-	var Band = function (_React$Component4) {
-		_inherits(Band, _React$Component4);
-	
-		function Band() {
-			_classCallCheck(this, Band);
-	
-			return _possibleConstructorReturn(this, (Band.__proto__ || Object.getPrototypeOf(Band)).apply(this, arguments));
-		}
-	
-		_createClass(Band, [{
-			key: 'render',
-			value: function render() {
-				return React.createElement(
-					'tr',
-					null,
-					React.createElement(
-						'td',
-						null,
-						this.props.band.name
-					)
-				);
-			}
-		}]);
-	
-		return Band;
-	}(React.Component);
-	
-	var Player = function (_React$Component5) {
-		_inherits(Player, _React$Component5);
-	
-		function Player() {
-			_classCallCheck(this, Player);
-	
-			return _possibleConstructorReturn(this, (Player.__proto__ || Object.getPrototypeOf(Player)).apply(this, arguments));
-		}
-	
-		_createClass(Player, [{
-			key: 'render',
-			value: function render() {
-				return React.createElement(
-					'tr',
-					null,
-					React.createElement(
-						'td',
-						null,
-						this.props.player.name
-					)
-				);
-			}
-		}]);
-	
-		return Player;
-	}(React.Component);
 	
 	ReactDOM.render(React.createElement(App, null), document.getElementById('react'));
 
@@ -26622,6 +26544,259 @@
 			}
 		};
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 226 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var React = __webpack_require__(1);
+	var Band = __webpack_require__(227);
+	
+	var BandList = function (_React$Component) {
+		_inherits(BandList, _React$Component);
+	
+		function BandList() {
+			_classCallCheck(this, BandList);
+	
+			return _possibleConstructorReturn(this, (BandList.__proto__ || Object.getPrototypeOf(BandList)).apply(this, arguments));
+		}
+	
+		_createClass(BandList, [{
+			key: 'render',
+			value: function render() {
+				var bands = this.props.bands.map(function (band) {
+					return React.createElement(Band, { key: band._links.self.href, band: band });
+				});
+				return React.createElement(
+					'table',
+					null,
+					React.createElement(
+						'tbody',
+						null,
+						React.createElement(
+							'tr',
+							null,
+							React.createElement(
+								'th',
+								null,
+								'Name'
+							)
+						),
+						bands
+					)
+				);
+			}
+		}]);
+	
+		return BandList;
+	}(React.Component);
+	
+	module.exports = BandList;
+
+/***/ },
+/* 227 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var React = __webpack_require__(1);
+	
+	var Band = function (_React$Component) {
+		_inherits(Band, _React$Component);
+	
+		function Band() {
+			_classCallCheck(this, Band);
+	
+			return _possibleConstructorReturn(this, (Band.__proto__ || Object.getPrototypeOf(Band)).apply(this, arguments));
+		}
+	
+		_createClass(Band, [{
+			key: 'render',
+			value: function render() {
+				return React.createElement(
+					'tr',
+					null,
+					React.createElement(
+						'td',
+						null,
+						this.props.band.name
+					)
+				);
+			}
+		}]);
+	
+		return Band;
+	}(React.Component);
+	
+	module.exports = Band;
+
+/***/ },
+/* 228 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var React = __webpack_require__(1);
+	var Player = __webpack_require__(229);
+	
+	var PlayerList = function (_React$Component) {
+	    _inherits(PlayerList, _React$Component);
+	
+	    function PlayerList() {
+	        _classCallCheck(this, PlayerList);
+	
+	        return _possibleConstructorReturn(this, (PlayerList.__proto__ || Object.getPrototypeOf(PlayerList)).apply(this, arguments));
+	    }
+	
+	    _createClass(PlayerList, [{
+	        key: 'render',
+	        value: function render() {
+	            var players = this.props.players.map(function (player) {
+	                return React.createElement(Player, { key: player._links.self.href, player: player });
+	            });
+	            return React.createElement(
+	                'table',
+	                null,
+	                React.createElement(
+	                    'tbody',
+	                    null,
+	                    React.createElement(
+	                        'tr',
+	                        null,
+	                        React.createElement(
+	                            'th',
+	                            null,
+	                            'Name'
+	                        )
+	                    ),
+	                    players
+	                )
+	            );
+	        }
+	    }]);
+	
+	    return PlayerList;
+	}(React.Component);
+	
+	module.exports = PlayerList;
+
+/***/ },
+/* 229 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var React = __webpack_require__(1);
+	
+	var Player = function (_React$Component) {
+		_inherits(Player, _React$Component);
+	
+		function Player() {
+			_classCallCheck(this, Player);
+	
+			return _possibleConstructorReturn(this, (Player.__proto__ || Object.getPrototypeOf(Player)).apply(this, arguments));
+		}
+	
+		_createClass(Player, [{
+			key: 'render',
+			value: function render() {
+				return React.createElement(
+					'tr',
+					null,
+					React.createElement(
+						'td',
+						null,
+						this.props.player.name
+					)
+				);
+			}
+		}]);
+	
+		return Player;
+	}(React.Component);
+	
+	module.exports = Player;
+
+/***/ },
+/* 230 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	module.exports = function follow(api, rootPath, relArray) {
+		var root = api({
+			method: 'GET',
+			path: rootPath
+		});
+	
+		return relArray.reduce(function (root, arrayItem) {
+			var rel = typeof arrayItem === 'string' ? arrayItem : arrayItem.rel;
+			return traverseNext(root, rel, arrayItem);
+		}, root);
+	
+		function traverseNext(root, rel, arrayItem) {
+			return root.then(function (response) {
+				if (hasEmbeddedRel(response.entity, rel)) {
+					return response.entity._embedded[rel];
+				}
+	
+				if (!response.entity._links) {
+					return [];
+				}
+	
+				if (typeof arrayItem === 'string') {
+					return api({
+						method: 'GET',
+						path: response.entity._links[rel].href
+					});
+				} else {
+					return api({
+						method: 'GET',
+						path: response.entity._links[rel].href,
+						params: arrayItem.params
+					});
+				}
+			});
+		}
+	
+		function hasEmbeddedRel(entity, rel) {
+			return entity._embedded && entity._embedded.hasOwnProperty(rel);
+		}
+	};
 
 /***/ }
 /******/ ]);

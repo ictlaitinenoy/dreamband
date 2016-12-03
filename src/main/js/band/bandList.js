@@ -1,3 +1,6 @@
+const React = require('react');
+var Band = require('./band');
+
 class BandList extends React.Component{
 	render() {
 		var bands = this.props.bands.map(band =>
@@ -15,3 +18,5 @@ class BandList extends React.Component{
 		)
 	}
 }
+
+module.exports = BandList;

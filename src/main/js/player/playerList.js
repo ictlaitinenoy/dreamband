@@ -1,3 +1,6 @@
+const React = require('react');
+var Player = require('./player');
+
 class PlayerList extends React.Component{
     render() {
         var players = this.props.players.map(player =>
@@ -15,3 +18,5 @@ class PlayerList extends React.Component{
         )
     }
 }
+
+module.exports = PlayerList;

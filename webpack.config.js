@@ -1,11 +1,11 @@
 var path = require('path');
 
 const PATHS = {
-	app: path.join(__dirname, 'app'),
+		app: path.join(__dirname, 'app'),
 };
 
 module.exports = {
-    entry: PATHS.app, //'./src/main/js/app.js',
+    entry: './src/main/js/app.js',
     devtool: 'sourcemaps',
     cache: true,
     debug: true,
@@ -16,9 +16,9 @@ module.exports = {
     module: {
         loaders: [
             {
-                test: path.join(__dirname, '.'),
+            	test: /\.js$/,
                 exclude: /(node_modules)/,
-                loader: 'babel',
+                loader: 'babel-loader',
                 query: {
                     cacheDirectory: true,
                     presets: ['es2015', 'react']
